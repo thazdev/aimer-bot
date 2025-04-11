@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model UserProfile {
+  id        String   @id @default(cuid())
+  discordId String   @unique
+  elo       String?
+  role      String?
+  sens      String?
+  public    Boolean  @default(false)
+  clips     Clip[]
+  createdAt DateTime @default(now())
+}
+
+model Clip {
+  id        String      @id @default(cuid())
+  userId    String
+  url       String
+  agent     String
+  rank      String?
+  sens      String?
+  comment   String?
+  votes     Vote[]
+  createdAt DateTime    @default(now())
+  user      UserProfile @relation(fields: [userId], references: [id])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  clipId    String
+  voterId   String
+  type      String // "🔥" | "🧠" | "💀"
+  createdAt DateTime @default(now())
+  clip      Clip     @relation(fields: [clipId], references: [id])
+}
