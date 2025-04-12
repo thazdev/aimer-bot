@@ -11,6 +11,7 @@ export const discordConfig = {
   channels: {
     verification: process.env.VERIFICATION_CHANNEL_ID || '',
     clips: process.env.CLIPS_CHANNEL_ID || '',
+    sendClip: process.env.SEND_CLIP_CHANNEL_ID || '',
     featuredClips: process.env.FEATURED_CLIPS_CHANNEL_ID || '',
     training: process.env.TRAINING_CHANNEL_ID || '',
   },
@@ -31,24 +32,3 @@ export const discordConfig = {
   ],
 };
 
-// src/config/database.ts
-import { PrismaClient } from '@prisma/client';
-
-export const prisma = new PrismaClient();
-
-// src/config/index.ts
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-export const config = {
-  port: parseInt(process.env.PORT || '3000', 10),
-  nodeEnv: process.env.NODE_ENV || 'development',
-  logLevel: process.env.LOG_LEVEL || 'info',
-  openai: {
-    apiKey: process.env.OPENAI_API_KEY || '',
-  },
-};
-
-export * from './database';
-export * from './discord';
