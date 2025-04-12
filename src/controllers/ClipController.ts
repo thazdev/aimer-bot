@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonInteraction, ModalSubmitInteraction, Message, Collection } from "discord.js";
 import { discordConfig } from "../config";
-
+import { clipStore } from "../store/clipStore";
 
 export async function setupSendClipButton(client: Client) {
     const channelId = discordConfig.channels.sendClip;
@@ -21,7 +21,6 @@ export async function setupSendClipButton(client: Client) {
 }
 
 export async function handleOpenClipModal(interaction: ButtonInteraction, client: Client) {
-    console.log("botao clicado - handleopenclipmodal chamado")
     const modal = new ModalBuilder()
         .setCustomId("submitClipModal")
         .setTitle("Enviar clipe");
@@ -58,7 +57,6 @@ export async function handleOpenClipModal(interaction: ButtonInteraction, client
     modal.addComponents(row1, row2, row3, row4);
 
     await interaction.showModal(modal);
-    console.log("modal enviado")
 }
 
 export async function handleClipSubmission(interaction: ModalSubmitInteraction, client: Client) {
@@ -80,7 +78,6 @@ export async function handleClipSubmission(interaction: ModalSubmitInteraction, 
     collector.on("collect", async (msg: Message) => {
         const clipChannelId = discordConfig.channels.clips;
         const clipChannel = client.channels.cache.get(clipChannelId) as TextChannel;
-
         if (!clipChannel) {
             console.error("Canal de clipes não encontrado.");
             return;
@@ -101,34 +98,37 @@ export async function handleClipSubmission(interaction: ModalSubmitInteraction, 
                 .setEmoji("🔥")
                 .setStyle(ButtonStyle.Primary)
         );
-        await clipChannel.send({
+        const sentMessage = await clipChannel.send({
             content,
             embeds: [
-                {
-                    title: "Informações do Clipe",
-                    color: getAgentColor(agente),
-                    author: {
-                        name: interaction.user.username,
-                        icon_url: interaction.user.displayAvatarURL(),
-                    },
-                    fields: [
-                        { name: "Agente", value: agente, inline: true },
-                        { name: "Sensibilidade", value: sensi, inline: true },
-                        { name: "Mouse", value: mouse, inline: true },
-                        { name: "Mapa", value: mapa, inline: true },
-                    ],
-                    ...(msg.content.includes("http") && {
-                        description: `[🔗 Ver clipe](${msg.content})`,
-                    }),
-                    ...(thumbnailUrl && {
-                        thumbnail: { url: thumbnailUrl },
-                    }),
-                    timestamp: new Date().toISOString(),
+              {
+                title: "Informações do Clipe",
+                color: getAgentColor(agente),
+                author: {
+                  name: interaction.user.username,
+                  icon_url: interaction.user.displayAvatarURL(),
                 },
+                fields: [
+                  { name: "Agente", value: agente, inline: true },
+                  { name: "Sensibilidade", value: sensi, inline: true },
+                  { name: "Mouse", value: mouse, inline: true },
+                  { name: "Mapa", value: mapa, inline: true },
+                ],
+                ...(msg.content.includes("http") && {
+                  description: `[🔗 Ver clipe](${msg.content})`,
+                }),
+                ...(thumbnailUrl && {
+                  thumbnail: { url: thumbnailUrl },
+                }),
+                timestamp: new Date().toISOString(),
+              },
             ],
             files: msg.attachments.size > 0 ? [...msg.attachments.values()] : [],
             components: [voteButtons],
-        });
+          });
+          clipStore[sentMessage.id] = {
+            userId: interaction.user.id,
+          };
         await msg.delete().catch(console.error);
     });
     collector.on("end", (collected) => {

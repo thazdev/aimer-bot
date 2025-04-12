@@ -1,10 +1,6 @@
 import { Interaction, Events, Client, ButtonInteraction, ModalSubmitInteraction, ActionRowBuilder, ButtonBuilder, ComponentType } from "discord.js";
 import { handleOpenClipModal, handleClipSubmission } from "../controllers/ClipController";
-
-const voteMap: Record<
-    string,
-    { up: Set<string>; down: Set<string>; hot: Set<string> }
-> = {};
+import { voteMap } from "../store/voteMap";
 
 export default {
     name: Events.InteractionCreate,
@@ -43,7 +39,7 @@ export default {
 
                         return new ButtonBuilder(component.data)
                             .setLabel(`${count}`)
-                            .setEmoji(component.emoji!); // mantém só o emoji original
+                            .setEmoji(component.emoji!);
                     }
                     return component;
                 });
