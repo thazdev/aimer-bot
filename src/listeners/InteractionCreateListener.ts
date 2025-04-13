@@ -1,15 +1,22 @@
-import { Interaction, Events, Client, ButtonInteraction, ModalSubmitInteraction, ActionRowBuilder, ButtonBuilder, ComponentType } from "discord.js";
+import { Interaction, Events, Client, ButtonInteraction, ModalSubmitInteraction, ActionRowBuilder, ButtonBuilder, ComponentType, TextChannel } from "discord.js";
 import { handleOpenClipModal, handleClipSubmission } from "../controllers/ClipController";
 import { voteMap } from "../store/voteMap";
+import { handleOpenFindTeamModal, handleTeamSubmission } from "../controllers/TeamController";
+import { discordConfig } from "../config";
+import { teamRequestStore } from "../store/teamRequestStore";
 
 export default {
     name: Events.InteractionCreate,
     async execute(interaction: Interaction, client: Client) {
+        console.log("Interação recebida:", interaction.type);
         if (interaction.isButton()) {
             const buttonInteraction = interaction as ButtonInteraction;
             if (buttonInteraction.customId === "openClipModal") {
                 await handleOpenClipModal(buttonInteraction, client);
                 return;
+            }
+            if (interaction.customId === "findTeamButton") {
+                await handleOpenFindTeamModal(interaction);
             }
             if (interaction.customId.startsWith("vote_")) {
                 const messageId = interaction.message.id;
@@ -55,6 +62,45 @@ export default {
             if (modalInteraction.customId === "submitClipModal") {
                 await handleClipSubmission(modalInteraction, client);
             }
+            if (modalInteraction.customId === "submitTeamModal") {
+                await handleTeamSubmission(modalInteraction, client);
+            }
         }
+        if (interaction.isChatInputCommand() && interaction.commandName === "excluir") {
+            console.log("Comando /excluir ativado");
+            const teamChannelId = discordConfig.channels.findTeam;
+            const teamChannel = client.channels.cache.get(teamChannelId) as TextChannel;
+            if (!teamChannel) {
+                await interaction.reply({
+                    content: "❌ Canal de time não encontrado.",
+                    ephemeral: true,
+                });
+                return;
+            }
+            const messageId = teamRequestStore[interaction.user.id];
+            if (!messageId) {
+                await interaction.reply({
+                    content: "❌ Você não tem um pedido ativo para remover.",
+                    ephemeral: true,
+                });
+                return;
+            }
+            try {
+                const message = await teamChannel.messages.fetch(messageId);
+                await message.delete();
+                delete teamRequestStore[interaction.user.id];
+        
+                await interaction.reply({
+                    content: "✅ Sua solicitação foi excluída com sucesso.",
+                    ephemeral: true,
+                });
+            } catch (err) {
+                console.error("Erro ao deletar mensagem:", err);
+                await interaction.reply({
+                    content: "⚠️ Não consegui encontrar ou excluir sua solicitação.",
+                    ephemeral: true,
+                });
+            }
+        }        
     },
 };

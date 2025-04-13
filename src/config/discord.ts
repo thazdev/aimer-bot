@@ -1,4 +1,3 @@
-// src/config/discord.ts
 import { GatewayIntentBits, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 
@@ -14,6 +13,7 @@ export const discordConfig = {
     sendClip: process.env.SEND_CLIP_CHANNEL_ID || '',
     featuredClips: process.env.FEATURED_CLIPS_CHANNEL_ID || '',
     training: process.env.TRAINING_CHANNEL_ID || '',
+    findTeam: process.env.FIND_TEAM_CHANNEL_ID || '',
   },
   intents: [
     GatewayIntentBits.Guilds,
