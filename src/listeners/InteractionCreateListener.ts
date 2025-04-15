@@ -1,23 +1,8 @@
-import {
-  Interaction,
-  Events,
-  Client,
-  ButtonInteraction,
-  ModalSubmitInteraction,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ComponentType,
-} from "discord.js";
-import {
-  handleOpenClipModal,
-  handleClipSubmission,
-} from "../controllers/ClipController";
+import { Interaction, Events, Client, ButtonInteraction, ModalSubmitInteraction, ActionRowBuilder, ButtonBuilder, ComponentType } from "discord.js";
+import { handleOpenClipModal, handleClipSubmission } from "../controllers/ClipController";
 import { voteMap } from "../store/voteMap";
-import {
-  handleOpenVerificationModal,
-  handleSubmitVerificationModal,
-} from "../controllers/VerificationController";
-import { intersection } from "zod";
+import { handleOpenVerificationModal, handleSubmitVerificationModal } from "../controllers/VerificationController";
+import { handleOpenFindTeamModal, handleTeamSubmission } from "../controllers/TeamController";
 
 export default {
   name: Events.InteractionCreate,
@@ -33,7 +18,10 @@ export default {
         await handleOpenVerificationModal(buttonInteraction);
         return;
       }
-
+      if (buttonInteraction.customId === "findTeamButton") {
+        await handleOpenFindTeamModal(buttonInteraction);
+        return;
+      }
       if (interaction.customId.startsWith("vote_")) {
         const messageId = interaction.message.id;
         const userId = interaction.user.id;
@@ -92,6 +80,10 @@ export default {
       if (modalInteraction.customId === "submitVerificationModal") {
         await handleSubmitVerificationModal(modalInteraction, client);
       }
+      if (modalInteraction.customId === "submitTeamModal") {
+        await handleTeamSubmission(modalInteraction, client);
+        return;
+      }      
     }
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === "select_roles") {

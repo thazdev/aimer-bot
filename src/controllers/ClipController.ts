@@ -1,17 +1,4 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  TextChannel,
-  Client,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ButtonInteraction,
-  ModalSubmitInteraction,
-  Message,
-  Collection,
-} from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, TextChannel, Client, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonInteraction, ModalSubmitInteraction, Message } from "discord.js";
 import { discordConfig } from "../config";
 import { clipStore } from "../store/clipStore";
 
@@ -24,32 +11,22 @@ export async function setupSendClipButton(client: Client) {
   }
   const messages = await channel.messages.fetch({ limit: 10 });
   const alreadySent = messages.some((msg) =>
-    msg.components[0]?.components.some(
-      (component) => component.customId === "openClipModal"
-    )
-  );
-
+    msg.components[0]?.components.some((component) => component.customId === "openClipModal"));
   if (alreadySent) {
     return;
   }
-
   const sendClipButton = new ButtonBuilder()
     .setCustomId("openClipModal")
     .setLabel("📤 Enviar clipe")
     .setStyle(ButtonStyle.Primary);
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    sendClipButton
-  );
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(sendClipButton);
   await channel.send({
     content: "Clique no botão abaixo para enviar seu clipe!",
     components: [row],
   });
 }
 
-export async function handleOpenClipModal(
-  interaction: ButtonInteraction,
-  client: Client
-) {
+export async function handleOpenClipModal(interaction: ButtonInteraction, client: Client) {
   const modal = new ModalBuilder()
     .setCustomId("submitClipModal")
     .setTitle("Enviar clipe");
@@ -78,28 +55,17 @@ export async function handleOpenClipModal(
     .setStyle(TextInputStyle.Short)
     .setRequired(true);
 
-  const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    agenteInput
-  );
-  const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    sensiInput
-  );
-  const row3 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    mouseInput
-  );
-  const row4 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    mapaInput
-  );
+  const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(agenteInput);
+  const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(sensiInput);
+  const row3 = new ActionRowBuilder<TextInputBuilder>().addComponents(mouseInput);
+  const row4 = new ActionRowBuilder<TextInputBuilder>().addComponents(mapaInput);
 
   modal.addComponents(row1, row2, row3, row4);
 
   await interaction.showModal(modal);
 }
 
-export async function handleClipSubmission(
-  interaction: ModalSubmitInteraction,
-  client: Client
-) {
+export async function handleClipSubmission(interaction: ModalSubmitInteraction, client: Client) {
   const agente = interaction.fields.getTextInputValue("agente");
   const sensi = interaction.fields.getTextInputValue("sensi");
   const mouse = interaction.fields.getTextInputValue("mouse");
