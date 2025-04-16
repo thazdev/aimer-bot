@@ -83,7 +83,7 @@ export default {
       if (modalInteraction.customId === "submitTeamModal") {
         await handleTeamSubmission(modalInteraction, client);
         return;
-      }      
+      }
     }
     if (interaction.isStringSelectMenu()) {
       if (interaction.customId === "select_roles") {
@@ -98,7 +98,7 @@ export default {
           iniciador: "1360349873349591140",
           controlador: "1360349722858229901",
           sentinela: "1360349855733645423",
-          flex: "1360349907264733356",
+          flex: "1360349907264733356"
         };
 
         for (const role of interaction.values) {
@@ -107,6 +107,10 @@ export default {
             await member.roles.add(roleId).catch(console.error);
           }
         }
+        const verifiedRoleId = "1360348735971922073"; 
+        const visitanteRoleId = "1360348680179421365";
+        await member.roles.add(verifiedRoleId).catch(console.error);
+        await member.roles.remove(visitanteRoleId).catch(console.error);
         await interaction.reply({
           content: "✅ Cargos atribuídos com sucesso!",
           ephemeral: true,

@@ -46,7 +46,7 @@ export async function handleOpenVerificationModal(interaction: ButtonInteraction
 
   const peripheralsInput = new TextInputBuilder()
     .setCustomId("perifericos")
-    .setLabel("Quais são seus Periféricos? (opcional)")
+    .setLabel("Qual mouse você usa? (opcional)")
     .setStyle(TextInputStyle.Short)
     .setRequired(false);
 
